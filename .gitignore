@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+
+# Editors and IDEs
+.idea/
+*.iml
+
+# Dart and Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+/build/
+
+# Generated test and coverage output
+/coverage/
+
+# Tooling caches
+.metadata
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
