@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app/instocks_client_app.dart';
+import 'core/config/app_config.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/session_storage.dart';
 import 'features/auth/session_controller.dart';
@@ -9,6 +10,7 @@ import 'features/client/client_api.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
 
   final storage = SessionStorage();
   final apiClient = ApiClient(storage: storage);
