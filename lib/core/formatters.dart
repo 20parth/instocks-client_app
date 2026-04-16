@@ -1,7 +1,8 @@
 import 'package:intl/intl.dart';
 
 class AppFormatters {
-  static final _currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+  static final _currency =
+      NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
   static final _date = DateFormat('dd MMM yyyy');
   static final _dateTime = DateFormat('dd MMM yyyy, hh:mm a');
 
@@ -16,6 +17,7 @@ class AppFormatters {
 
   static String dateTime(String? raw) {
     if (raw == null || raw.isEmpty) return '—';
-    return _dateTime.format(DateTime.tryParse(raw)?.toLocal() ?? DateTime.now());
+    return _dateTime
+        .format(DateTime.tryParse(raw)?.toLocal() ?? DateTime.now());
   }
 }

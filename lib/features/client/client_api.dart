@@ -22,7 +22,8 @@ class ClientApi {
     return (body['data'] as List<dynamic>? ?? <dynamic>[]);
   }
 
-  Future<Map<String, dynamic>> login({required String login, required String password}) async {
+  Future<Map<String, dynamic>> login(
+      {required String login, required String password}) async {
     final response = await _client.post('/auth/login', data: {
       'login': login,
       'password': password,
@@ -30,7 +31,8 @@ class ClientApi {
 
     final body = response.data as Map<String, dynamic>;
     final data = (body['data'] ?? <String, dynamic>{}) as Map<String, dynamic>;
-    final user = AuthUser.fromJson((data['user'] ?? <String, dynamic>{}) as Map<String, dynamic>);
+    final user = AuthUser.fromJson(
+        (data['user'] ?? <String, dynamic>{}) as Map<String, dynamic>);
 
     return {
       'token': data['token'] as String? ?? '',
@@ -65,7 +67,8 @@ class ClientApi {
     return PortfolioItem.fromJson(_data(response));
   }
 
-  Future<Map<String, dynamic>> getPortfolioStatement(int portfolioId, {String? dateFrom, String? dateTo}) async {
+  Future<Map<String, dynamic>> getPortfolioStatement(int portfolioId,
+      {String? dateFrom, String? dateTo}) async {
     final response = await _client.get(
       '/client/reports/portfolio/$portfolioId',
       query: {
@@ -86,7 +89,8 @@ class ClientApi {
         .toList();
   }
 
-  Future<List<FundEntryItem>> getFundEntries({int? portfolioId, String? status}) async {
+  Future<List<FundEntryItem>> getFundEntries(
+      {int? portfolioId, String? status}) async {
     final response = await _client.get(
       '/client/funds/entries',
       query: {
@@ -103,7 +107,8 @@ class ClientApi {
   Future<List<ClientNotificationItem>> getNotifications() async {
     final response = await _client.get('/client/notifications');
     return _collection(response)
-        .map((item) => ClientNotificationItem.fromJson(item as Map<String, dynamic>))
+        .map((item) =>
+            ClientNotificationItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
@@ -114,11 +119,13 @@ class ClientApi {
   Future<List<NotificationPreference>> getNotificationPreferences() async {
     final response = await _client.get('/client/notification-preferences');
     return _collection(response)
-        .map((item) => NotificationPreference.fromJson(item as Map<String, dynamic>))
+        .map((item) =>
+            NotificationPreference.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 
-  Future<List<NotificationPreference>> updateNotificationPreferences(List<NotificationPreference> preferences) async {
+  Future<List<NotificationPreference>> updateNotificationPreferences(
+      List<NotificationPreference> preferences) async {
     final response = await _client.patch(
       '/client/notification-preferences',
       data: {
@@ -127,7 +134,8 @@ class ClientApi {
     );
 
     return _collection(response)
-        .map((item) => NotificationPreference.fromJson(item as Map<String, dynamic>))
+        .map((item) =>
+            NotificationPreference.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 

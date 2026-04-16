@@ -71,8 +71,7 @@ class SessionController extends ChangeNotifier {
   Future<void> logout() async {
     try {
       await _api.logout();
-    } catch (_) {
-    }
+    } catch (_) {}
 
     _token = null;
     _user = null;

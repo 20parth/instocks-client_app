@@ -36,7 +36,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final notifications = await api.getNotifications();
     final preferences = await api.getNotificationPreferences();
 
-    return _NotificationsBundle(notifications: notifications, preferences: preferences);
+    return _NotificationsBundle(
+        notifications: notifications, preferences: preferences);
   }
 
   Future<void> _showLocalPreview() async {
@@ -45,7 +46,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       'Instocks Client',
       'Local notification preview is enabled for this app.',
       const NotificationDetails(
-        android: AndroidNotificationDetails('instocks_client', 'Instocks Client Notifications'),
+        android: AndroidNotificationDetails(
+            'instocks_client', 'Instocks Client Notifications'),
         iOS: DarwinNotificationDetails(),
       ),
     );
@@ -56,9 +58,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     setState(() => _future = _load());
   }
 
-  Future<void> _togglePreference(NotificationPreference preference, NotificationPreference updated) async {
+  Future<void> _togglePreference(
+      NotificationPreference preference, NotificationPreference updated) async {
     final bundle = await _future;
-    final next = bundle.preferences.map((item) => item.id == preference.id ? updated : item).toList();
+    final next = bundle.preferences
+        .map((item) => item.id == preference.id ? updated : item)
+        .toList();
     await context.read<ClientApi>().updateNotificationPreferences(next);
     setState(() => _future = _load());
   }
@@ -78,19 +83,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              Text('Notifications', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+              Text('Notifications',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
-              const Text('Review in-app alerts and control how Instocks contacts your client account.'),
+              const Text(
+                  'Review in-app alerts and control how Instocks contacts your client account.'),
               const SizedBox(height: 20),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Local App Alerts', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Local App Alerts',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 12),
-                    const Text('This Flutter app can preview local notifications now. Full background push still needs FCM/APNS setup.'),
+                    const Text(
+                        'This Flutter app can preview local notifications now. Full background push still needs FCM/APNS setup.'),
                     const SizedBox(height: 16),
-                    FilledButton(onPressed: _showLocalPreview, child: const Text('Preview Local Notification')),
+                    FilledButton(
+                        onPressed: _showLocalPreview,
+                        child: const Text('Preview Local Notification')),
                   ],
                 ),
               ),
@@ -99,14 +116,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Preferences', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Preferences',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 12),
                     ...data.preferences.map((preference) => SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(preference.notificationType.replaceAll('_', ' ')),
-                          subtitle: Text('In-app ${preference.allowInApp ? 'on' : 'off'} • Email ${preference.allowEmail ? 'on' : 'off'} • Push ${preference.allowPush ? 'on' : 'off'}'),
+                          title: Text(
+                              preference.notificationType.replaceAll('_', ' ')),
+                          subtitle: Text(
+                              'In-app ${preference.allowInApp ? 'on' : 'off'} • Email ${preference.allowEmail ? 'on' : 'off'} • Push ${preference.allowPush ? 'on' : 'off'}'),
                           value: preference.allowPush,
-                          onChanged: (value) => _togglePreference(preference, preference.copyWith(allowPush: value)),
+                          onChanged: (value) => _togglePreference(preference,
+                              preference.copyWith(allowPush: value)),
                         )),
                   ],
                 ),
@@ -116,16 +140,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Notification Center', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Notification Center',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 12),
                     ...data.notifications.map((notification) => ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(notification.title),
-                          subtitle: Text('${notification.message}\n${AppFormatters.dateTime(notification.createdAt)}'),
+                          subtitle: Text(
+                              '${notification.message}\n${AppFormatters.dateTime(notification.createdAt)}'),
                           isThreeLine: true,
                           trailing: notification.isRead
                               ? const Icon(Icons.done_all_rounded)
-                              : TextButton(onPressed: () => _markRead(notification.id), child: const Text('Read')),
+                              : TextButton(
+                                  onPressed: () => _markRead(notification.id),
+                                  child: const Text('Read')),
                         )),
                   ],
                 ),
@@ -139,7 +170,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 }
 
 class _NotificationsBundle {
-  _NotificationsBundle({required this.notifications, required this.preferences});
+  _NotificationsBundle(
+      {required this.notifications, required this.preferences});
 
   final List<ClientNotificationItem> notifications;
   final List<NotificationPreference> preferences;

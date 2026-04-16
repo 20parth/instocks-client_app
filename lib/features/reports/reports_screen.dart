@@ -51,9 +51,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
               return ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  Text('My Reports', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  Text('My Reports',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 8),
-                  const Text('Review one portfolio at a time with statement activity, ROI history, and fund entries.'),
+                  const Text(
+                      'Review one portfolio at a time with statement activity, ROI history, and fund entries.'),
                   const SizedBox(height: 20),
                   AppCard(
                     child: Column(
@@ -61,10 +66,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         DropdownButtonFormField<int>(
                           value: _portfolioId,
                           items: portfolios
-                              .map((item) => DropdownMenuItem(value: item.id, child: Text('${item.portfolioNumber} - ${item.portfolioType}')))
+                              .map((item) => DropdownMenuItem(
+                                  value: item.id,
+                                  child: Text(
+                                      '${item.portfolioNumber} - ${item.portfolioType}')))
                               .toList(),
-                          onChanged: (value) => setState(() => _portfolioId = value),
-                          decoration: const InputDecoration(labelText: 'Portfolio'),
+                          onChanged: (value) =>
+                              setState(() => _portfolioId = value),
+                          decoration:
+                              const InputDecoration(labelText: 'Portfolio'),
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -78,9 +88,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                     firstDate: DateTime(2020),
                                     lastDate: DateTime(2100),
                                   );
-                                  if (value != null) setState(() => _dateFrom = value);
+                                  if (value != null)
+                                    setState(() => _dateFrom = value);
                                 },
-                                child: Text(_dateFrom == null ? 'From Date' : AppFormatters.date(_dateFrom!.toIso8601String())),
+                                child: Text(_dateFrom == null
+                                    ? 'From Date'
+                                    : AppFormatters.date(
+                                        _dateFrom!.toIso8601String())),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -93,9 +107,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                     firstDate: DateTime(2020),
                                     lastDate: DateTime(2100),
                                   );
-                                  if (value != null) setState(() => _dateTo = value);
+                                  if (value != null)
+                                    setState(() => _dateTo = value);
                                 },
-                                child: Text(_dateTo == null ? 'To Date' : AppFormatters.date(_dateTo!.toIso8601String())),
+                                child: Text(_dateTo == null
+                                    ? 'To Date'
+                                    : AppFormatters.date(
+                                        _dateTo!.toIso8601String())),
                               ),
                             ),
                           ],
@@ -108,13 +126,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Statement Activity', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                        Text('Statement Activity',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 12),
                         ...bundle.transactions.map((item) => ListTile(
                               contentPadding: EdgeInsets.zero,
-                              title: Text(item['transaction_type']?.toString() ?? 'Transaction'),
-                              subtitle: Text(AppFormatters.date(item['transaction_date']?.toString())),
-                              trailing: Text(AppFormatters.currency((item['amount'] as num?)?.toDouble() ?? 0)),
+                              title: Text(
+                                  item['transaction_type']?.toString() ??
+                                      'Transaction'),
+                              subtitle: Text(AppFormatters.date(
+                                  item['transaction_date']?.toString())),
+                              trailing: Text(AppFormatters.currency(
+                                  (item['amount'] as num?)?.toDouble() ?? 0)),
                             )),
                       ],
                     ),
@@ -124,13 +150,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('ROI Ledger', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                        Text('ROI Ledger',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 12),
                         ...bundle.roiEntries.map((item) => ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text('${item.month}/${item.year}'),
                               subtitle: Text(item.paymentStatus),
-                              trailing: Text(AppFormatters.currency(item.roiAmount)),
+                              trailing:
+                                  Text(AppFormatters.currency(item.roiAmount)),
                             )),
                       ],
                     ),
@@ -140,13 +171,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Funds Activity', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                        Text('Funds Activity',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 12),
                         ...bundle.funds.map((item) => ListTile(
                               contentPadding: EdgeInsets.zero,
-                              title: Text('${item.fundType} - ${item.stockName ?? 'No stock'}'),
-                              subtitle: Text('${item.status} • ${AppFormatters.date(item.entryDate ?? item.timestamp)}'),
-                              trailing: Text(AppFormatters.currency(item.amount)),
+                              title: Text(
+                                  '${item.fundType} - ${item.stockName ?? 'No stock'}'),
+                              subtitle: Text(
+                                  '${item.status} • ${AppFormatters.date(item.entryDate ?? item.timestamp)}'),
+                              trailing:
+                                  Text(AppFormatters.currency(item.amount)),
                             )),
                       ],
                     ),
@@ -160,17 +198,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Future<_ReportsBundle> _load(ClientApi api, int portfolioId, DateTime? dateFrom, DateTime? dateTo) async {
+  Future<_ReportsBundle> _load(ClientApi api, int portfolioId,
+      DateTime? dateFrom, DateTime? dateTo) async {
     final statement = await api.getPortfolioStatement(
       portfolioId,
       dateFrom: dateFrom?.toIso8601String().split('T').first,
       dateTo: dateTo?.toIso8601String().split('T').first,
     );
     final roiEntries = await api.getPortfolioRoi(portfolioId);
-    final funds = await api.getFundEntries(portfolioId: portfolioId, status: 'Open');
+    final funds =
+        await api.getFundEntries(portfolioId: portfolioId, status: 'Open');
 
     return _ReportsBundle(
-      transactions: List<Map<String, dynamic>>.from(statement['transactions'] as List<dynamic>? ?? const []),
+      transactions: List<Map<String, dynamic>>.from(
+          statement['transactions'] as List<dynamic>? ?? const []),
       roiEntries: roiEntries,
       funds: funds,
     );
@@ -178,7 +219,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
 }
 
 class _ReportsBundle {
-  _ReportsBundle({required this.transactions, required this.roiEntries, required this.funds});
+  _ReportsBundle(
+      {required this.transactions,
+      required this.roiEntries,
+      required this.funds});
 
   final List<Map<String, dynamic>> transactions;
   final List<RoiEntry> roiEntries;

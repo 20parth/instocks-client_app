@@ -16,7 +16,9 @@ class InstocksClientApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Instocks Client',
-          theme: AppTheme.build(),
+          theme: AppTheme.buildLight(),
+          darkTheme: AppTheme.buildDark(),
+          themeMode: ThemeMode.system,
           home: session.isBootstrapping
               ? const _SplashScreen()
               : session.isAuthenticated

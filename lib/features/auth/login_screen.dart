@@ -35,7 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(
+            content: Text(error.toString().replaceFirst('Exception: ', ''))),
       );
     }
   }
@@ -66,11 +67,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Instocks Client', style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary)),
+                    Text('Instocks Client',
+                        style: theme.textTheme.labelLarge
+                            ?.copyWith(color: theme.colorScheme.primary)),
                     const SizedBox(height: 12),
-                    Text('Investor app for your portfolios, ROI, funds, and reports.', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                        'Investor app for your portfolios, ROI, funds, and reports.',
+                        style: theme.textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 10),
-                    Text('Client-only access. Admin and accounts users should continue using the web operations panel.', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                    Text(
+                        'Client-only access. Admin and accounts users should continue using the web operations panel.',
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -80,29 +89,41 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Sign In', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Sign In',
+                        style: theme.textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _loginController,
-                      decoration: const InputDecoration(labelText: 'Username or Email'),
-                      validator: (value) => (value == null || value.trim().isEmpty) ? 'Login is required' : null,
+                      decoration:
+                          const InputDecoration(labelText: 'Username or Email'),
+                      validator: (value) =>
+                          (value == null || value.trim().isEmpty)
+                              ? 'Login is required'
+                              : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(labelText: 'Password'),
-                      validator: (value) => (value == null || value.isEmpty) ? 'Password is required' : null,
+                      validator: (value) => (value == null || value.isEmpty)
+                          ? 'Password is required'
+                          : null,
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
                       onPressed: session.isSubmitting ? null : _submit,
                       style: FilledButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
                       ),
                       child: session.isSubmitting
-                          ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                              height: 22,
+                              width: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2))
                           : const Text('Open Client App'),
                     ),
                   ],

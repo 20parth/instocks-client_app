@@ -35,14 +35,21 @@ class PortfolioDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(portfolio.portfolioType, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary)),
+                    Text(portfolio.portfolioType,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.primary)),
                     const SizedBox(height: 8),
-                    Text(portfolio.portfolioNumber, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(portfolio.portfolioNumber,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 14),
                     Text('Group: ${portfolio.groupCode ?? '—'}'),
                     Text('Payment Date: ${portfolio.paymentDate ?? '—'}'),
                     Text('Start: ${AppFormatters.date(portfolio.startDate)}'),
-                    Text('Maturity: ${AppFormatters.date(portfolio.maturityDate)}'),
+                    Text(
+                        'Maturity: ${AppFormatters.date(portfolio.maturityDate)}'),
                   ],
                 ),
               ),
@@ -51,12 +58,20 @@ class PortfolioDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Portfolio Summary', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Portfolio Summary',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 14),
-                    Text('Invested Amount: ${AppFormatters.currency(portfolio.initialInvestment)}'),
-                    Text('Current Capital: ${AppFormatters.currency(portfolio.currentCapital)}'),
-                    Text('ROI Paid: ${AppFormatters.currency(portfolio.totalRoiPaid)}'),
-                    Text('ROI Unpaid: ${AppFormatters.currency(portfolio.totalRoiUnpaid)}'),
+                    Text(
+                        'Invested Amount: ${AppFormatters.currency(portfolio.initialInvestment)}'),
+                    Text(
+                        'Current Capital: ${AppFormatters.currency(portfolio.currentCapital)}'),
+                    Text(
+                        'ROI Paid: ${AppFormatters.currency(portfolio.totalRoiPaid)}'),
+                    Text(
+                        'ROI Unpaid: ${AppFormatters.currency(portfolio.totalRoiUnpaid)}'),
                   ],
                 ),
               ),
@@ -65,7 +80,11 @@ class PortfolioDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ROI Ledger', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('ROI Ledger',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 14),
                     ...bundle.roiEntries.map((entry) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
@@ -73,7 +92,8 @@ class PortfolioDetailScreen extends StatelessWidget {
                             contentPadding: EdgeInsets.zero,
                             title: Text('${entry.month}/${entry.year}'),
                             subtitle: Text(entry.paymentStatus),
-                            trailing: Text(AppFormatters.currency(entry.roiAmount)),
+                            trailing:
+                                Text(AppFormatters.currency(entry.roiAmount)),
                           ),
                         )),
                   ],
@@ -84,20 +104,27 @@ class PortfolioDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Funds Manager', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text('Funds Manager',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 14),
                     ...bundle.fundEntries.map((entry) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text('${entry.fundType} - ${entry.stockName ?? 'No stock'}'),
-                            subtitle: Text('${entry.status} • ${AppFormatters.date(entry.entryDate ?? entry.timestamp)}'),
+                            title: Text(
+                                '${entry.fundType} - ${entry.stockName ?? 'No stock'}'),
+                            subtitle: Text(
+                                '${entry.status} • ${AppFormatters.date(entry.entryDate ?? entry.timestamp)}'),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(AppFormatters.currency(entry.amount)),
-                                Text(AppFormatters.percent(entry.pnlPercentage)),
+                                Text(
+                                    AppFormatters.percent(entry.pnlPercentage)),
                               ],
                             ),
                           ),
@@ -114,8 +141,10 @@ class PortfolioDetailScreen extends StatelessWidget {
 
   Future<_PortfolioDetailBundle> _load(ClientApi api) async {
     final roiEntries = await api.getPortfolioRoi(portfolio.id);
-    final fundEntries = await api.getFundEntries(portfolioId: portfolio.id, status: 'Open');
-    return _PortfolioDetailBundle(roiEntries: roiEntries, fundEntries: fundEntries);
+    final fundEntries =
+        await api.getFundEntries(portfolioId: portfolio.id, status: 'Open');
+    return _PortfolioDetailBundle(
+        roiEntries: roiEntries, fundEntries: fundEntries);
   }
 }
 

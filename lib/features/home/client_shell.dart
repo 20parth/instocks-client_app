@@ -34,10 +34,14 @@ class _ClientShellState extends State<ClientShell> {
         onDestinationSelected: (value) => setState(() => _index = value),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_rounded), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.wallet_rounded), label: 'Portfolios'),
-          NavigationDestination(icon: Icon(Icons.analytics_rounded), label: 'Reports'),
-          NavigationDestination(icon: Icon(Icons.notifications_rounded), label: 'Alerts'),
-          NavigationDestination(icon: Icon(Icons.person_rounded), label: 'Profile'),
+          NavigationDestination(
+              icon: Icon(Icons.wallet_rounded), label: 'Portfolios'),
+          NavigationDestination(
+              icon: Icon(Icons.analytics_rounded), label: 'Reports'),
+          NavigationDestination(
+              icon: Icon(Icons.notifications_rounded), label: 'Alerts'),
+          NavigationDestination(
+              icon: Icon(Icons.person_rounded), label: 'Profile'),
         ],
       ),
     );

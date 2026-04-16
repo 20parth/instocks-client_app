@@ -32,10 +32,14 @@ class AuthUser {
 
     return AuthUser(
       id: (json['id'] as num?)?.toInt() ?? 0,
-      fullName: (json['full_name'] ?? json['name'] ?? json['username'] ?? 'Client') as String,
+      fullName: (json['full_name'] ??
+          json['name'] ??
+          json['username'] ??
+          'Client') as String,
       email: (json['email'] ?? '') as String,
       role: (json['role'] ?? 'Client') as String,
-      clientId: (json['client_id'] as num?)?.toInt() ?? (client?['id'] as num?)?.toInt(),
+      clientId: (json['client_id'] as num?)?.toInt() ??
+          (client?['id'] as num?)?.toInt(),
       clientCode: client?['client_code'] as String?,
       phone: client?['phone'] as String?,
       kycStatus: client?['kyc_status'] as String?,

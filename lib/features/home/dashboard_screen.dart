@@ -52,19 +52,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           final data = snapshot.data!;
-          final summary = data.summary['summary'] as Map<String, dynamic>? ?? {};
-          final totalCapital = (summary['current_capital'] as num?)?.toDouble() ?? 0;
+          final summary =
+              data.summary['summary'] as Map<String, dynamic>? ?? {};
+          final totalCapital =
+              (summary['current_capital'] as num?)?.toDouble() ?? 0;
           final totalRoi = (summary['total_roi'] as num?)?.toDouble() ?? 0;
-          final totalWithdrawals = (summary['total_withdrawals'] as num?)?.toDouble() ?? 0;
+          final totalWithdrawals =
+              (summary['total_withdrawals'] as num?)?.toDouble() ?? 0;
 
           return RefreshIndicator(
             onRefresh: () async => setState(() => _future = _load()),
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                Text('Welcome, ${user?.fullName.split(' ').first ?? 'Client'}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                Text('Welcome, ${user?.fullName.split(' ').first ?? 'Client'}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
-                Text('Track your linked portfolios, ROI, funds, reports, and alerts in one client-only mobile workspace.'),
+                Text(
+                    'Track your linked portfolios, ROI, funds, reports, and alerts in one client-only mobile workspace.'),
                 const SizedBox(height: 20),
                 AppCard(
                   child: Column(
@@ -74,17 +82,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 18),
                       Row(
                         children: [
-                          Expanded(child: MetricTile(label: 'Portfolios', value: '${data.portfolios.length}', icon: Icons.account_balance_wallet_rounded)),
+                          Expanded(
+                              child: MetricTile(
+                                  label: 'Portfolios',
+                                  value: '${data.portfolios.length}',
+                                  icon: Icons.account_balance_wallet_rounded)),
                           const SizedBox(width: 12),
-                          Expanded(child: MetricTile(label: 'Unread Alerts', value: '${data.unreadNotifications}', icon: Icons.notifications_active_rounded)),
+                          Expanded(
+                              child: MetricTile(
+                                  label: 'Unread Alerts',
+                                  value: '${data.unreadNotifications}',
+                                  icon: Icons.notifications_active_rounded)),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Expanded(child: MetricTile(label: 'Current Capital', value: AppFormatters.currency(totalCapital), icon: Icons.savings_rounded)),
+                          Expanded(
+                              child: MetricTile(
+                                  label: 'Current Capital',
+                                  value: AppFormatters.currency(totalCapital),
+                                  icon: Icons.savings_rounded)),
                           const SizedBox(width: 12),
-                          Expanded(child: MetricTile(label: 'Total ROI', value: AppFormatters.currency(totalRoi), icon: Icons.trending_up_rounded)),
+                          Expanded(
+                              child: MetricTile(
+                                  label: 'Total ROI',
+                                  value: AppFormatters.currency(totalRoi),
+                                  icon: Icons.trending_up_rounded)),
                         ],
                       ),
                     ],
@@ -99,16 +123,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         sectionsSpace: 4,
                         centerSpaceRadius: 42,
                         sections: [
-                          PieChartSectionData(value: totalCapital <= 0 ? 1 : totalCapital, color: const Color(0xFF37C6F4), title: 'Capital'),
-                          PieChartSectionData(value: totalRoi <= 0 ? 1 : totalRoi, color: const Color(0xFF69F0AE), title: 'ROI'),
-                          PieChartSectionData(value: totalWithdrawals <= 0 ? 1 : totalWithdrawals, color: const Color(0xFFFFC857), title: 'Withdrawals'),
+                          PieChartSectionData(
+                              value: totalCapital <= 0 ? 1 : totalCapital,
+                              color: const Color(0xFF37C6F4),
+                              title: 'Capital'),
+                          PieChartSectionData(
+                              value: totalRoi <= 0 ? 1 : totalRoi,
+                              color: const Color(0xFF69F0AE),
+                              title: 'ROI'),
+                          PieChartSectionData(
+                              value:
+                                  totalWithdrawals <= 0 ? 1 : totalWithdrawals,
+                              color: const Color(0xFFFFC857),
+                              title: 'Withdrawals'),
                         ],
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text('My Portfolios', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                Text('My Portfolios',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 12),
                 ...data.portfolios.map((portfolio) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -132,7 +170,8 @@ class _PortfolioPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => PortfolioDetailScreen(portfolio: portfolio)));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => PortfolioDetailScreen(portfolio: portfolio)));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,9 +182,15 @@ class _PortfolioPreviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(portfolio.portfolioType, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary)),
+                    Text(portfolio.portfolioType,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.primary)),
                     const SizedBox(height: 4),
-                    Text(portfolio.portfolioNumber, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(portfolio.portfolioNumber,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -153,7 +198,8 @@ class _PortfolioPreviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Text('Current Capital: ${AppFormatters.currency(portfolio.currentCapital)}'),
+          Text(
+              'Current Capital: ${AppFormatters.currency(portfolio.currentCapital)}'),
           Text('Total ROI: ${AppFormatters.currency(portfolio.totalRoi)}'),
           Text('Payment Date: ${portfolio.paymentDate ?? '—'}'),
         ],
