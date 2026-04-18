@@ -9,11 +9,17 @@ class BiometricService {
   final LocalAuthentication _auth = LocalAuthentication();
 
   static const _enabledKey = 'app_lock_enabled';
+  static const _setupPromptedKey = 'biometric_setup_prompted';
 
   bool get isAppLockEnabled => _prefs.getBool(_enabledKey) ?? false;
+  bool get hasPromptedSetup => _prefs.getBool(_setupPromptedKey) ?? false;
 
   Future<void> setAppLockEnabled(bool enabled) async {
     await _prefs.setBool(_enabledKey, enabled);
+  }
+
+  Future<void> markSetupPrompted() async {
+    await _prefs.setBool(_setupPromptedKey, true);
   }
 
   Future<bool> canAuthenticate() async {

@@ -28,7 +28,8 @@ Future<void> main() async {
         Provider<ClientApi>.value(value: clientApi),
         Provider<BiometricService>.value(value: biometricService),
         ChangeNotifierProvider<SessionController>(
-          create: (_) => SessionController(clientApi, storage)..bootstrap(),
+          create: (_) => SessionController(clientApi, storage, biometricService)
+            ..bootstrap(),
         ),
       ],
       child: const InstocksClientApp(),

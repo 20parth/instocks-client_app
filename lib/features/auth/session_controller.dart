@@ -2,22 +2,26 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/models/auth_user.dart';
 import '../../core/storage/session_storage.dart';
+import '../../core/auth/biometric_service.dart';
 import '../client/client_api.dart';
 
 class SessionController extends ChangeNotifier {
-  SessionController(this._api, this._storage);
+  SessionController(this._api, this._storage, this._biometric);
 
   final ClientApi _api;
   final SessionStorage _storage;
+  final BiometricService _biometric;
 
   bool _isBootstrapping = true;
   bool _isSubmitting = false;
+  bool _shouldPromptBiometricSetup = false;
   String? _token;
   AuthUser? _user;
 
   bool get isBootstrapping => _isBootstrapping;
   bool get isSubmitting => _isSubmitting;
   bool get isAuthenticated => _token != null && _user != null;
+  bool get shouldPromptBiometricSetup => _shouldPromptBiometricSetup;
   AuthUser? get user => _user;
 
   Future<void> bootstrap() async {
@@ -62,10 +66,25 @@ class SessionController extends ChangeNotifier {
       _user = user;
       await _storage.saveToken(token);
       await _storage.saveUser(user.toJson());
+
+      // Check if we should prompt for biometric setup
+      final hasPrompted = _biometric.hasPromptedSetup;
+      final isEnabled = _biometric.isAppLockEnabled;
+      final canAuth = await _biometric.canAuthenticate();
+
+      if (!hasPrompted && !isEnabled && canAuth) {
+        _shouldPromptBiometricSetup = true;
+      }
     } finally {
       _isSubmitting = false;
       notifyListeners();
     }
+  }
+
+  void dismissBiometricSetup() {
+    _shouldPromptBiometricSetup = false;
+    _biometric.markSetupPrompted();
+    notifyListeners();
   }
 
   Future<void> logout() async {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../notifications/notifications_screen.dart';
-import '../portfolio/portfolio_detail_screen.dart';
 import '../portfolio/portfolios_screen.dart';
 import '../profile/profile_screen.dart';
 import '../reports/reports_screen.dart';
+import 'dashboard_screen.dart';
 import 'dashboard_screen.dart';
 
 class ClientShell extends StatefulWidget {

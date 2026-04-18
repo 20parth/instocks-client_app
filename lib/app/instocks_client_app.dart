@@ -5,6 +5,7 @@ import '../core/theme/app_theme.dart';
 import '../core/auth/biometric_service.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/session_controller.dart';
+import '../features/auth/biometric_setup_screen.dart';
 import '../features/home/client_shell.dart';
 
 class InstocksClientApp extends StatefulWidget {
@@ -57,22 +58,45 @@ class _InstocksClientAppState extends State<InstocksClientApp>
   Widget build(BuildContext context) {
     return Consumer<SessionController>(
       builder: (context, session, _) {
+        Widget home;
+
+        if (session.isBootstrapping) {
+          home = const _SplashScreen();
+        } else if (!_isAuthenticated) {
+          home = _LockedScreen(onAuthenticate: _checkAuth);
+        } else if (!session.isAuthenticated) {
+          home = const LoginScreen();
+        } else if (session.shouldPromptBiometricSetup) {
+          home = _BiometricSetupWrapper(
+            onComplete: () {
+              session.dismissBiometricSetup();
+            },
+          );
+        } else {
+          home = const ClientShell();
+        }
+
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Instocks Client',
           theme: AppTheme.buildLight(),
           darkTheme: AppTheme.buildDark(),
           themeMode: ThemeMode.system,
-          home: session.isBootstrapping
-              ? const _SplashScreen()
-              : !_isAuthenticated
-                  ? _LockedScreen(onAuthenticate: _checkAuth)
-                  : session.isAuthenticated
-                      ? const ClientShell()
-                      : const LoginScreen(),
+          home: home,
         );
       },
     );
+  }
+}
+
+class _BiometricSetupWrapper extends StatelessWidget {
+  final VoidCallback onComplete;
+
+  const _BiometricSetupWrapper({required this.onComplete});
+
+  @override
+  Widget build(BuildContext context) {
+    return BiometricSetupScreen();
   }
 }
 
@@ -84,42 +108,116 @@ class _LockedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              Icon(
-                Icons.lock_outline_rounded,
-                size: 64,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'App Locked',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [
+                    const Color(0xFF09111F),
+                    const Color(0xFF0E1727),
+                    const Color(0xFF162944),
+                  ]
+                : [
+                    const Color(0xFFF8FAFC),
+                    const Color(0xFFE2E8F0),
+                    const Color(0xFFCBD5E1),
+                  ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                // Animated lock icon with glow
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.primary.withOpacity(0.6),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withOpacity(0.4),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.lock_outline_rounded,
+                    size: 56,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Authenticate to access Instocks',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha(153),
+                const SizedBox(height: 32),
+                Text(
+                  'Instocks Locked',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: onAuthenticate,
-                icon: const Icon(Icons.fingerprint_rounded),
-                label: const Text('Unlock'),
-              ),
-              const Spacer(flex: 2),
-            ],
+                const SizedBox(height: 12),
+                Text(
+                  'Authenticate to access your portfolio',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface.withAlpha(153),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
+                FilledButton.icon(
+                  onPressed: onAuthenticate,
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 64),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  icon: const Icon(Icons.fingerprint_rounded, size: 28),
+                  label: const Text(
+                    'Unlock App',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Spacer(flex: 2),
+                // Security message
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.shield_outlined,
+                      size: 16,
+                      color: theme.colorScheme.onSurface.withAlpha(102),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Protected by device security',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withAlpha(102),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -148,4 +148,19 @@ class ClientApi {
     final response = await _client.patch('/client/profile', data: payload);
     return ClientProfile.fromJson(_data(response));
   }
+
+  Future<void> registerDeviceToken({
+    required String deviceToken,
+    required String platform,
+    String? deviceName,
+  }) async {
+    await _client.post(
+      '/client/device-tokens',
+      data: {
+        'device_token': deviceToken,
+        'platform': platform,
+        'device_name': deviceName,
+      },
+    );
+  }
 }
