@@ -6,6 +6,7 @@ import '../../core/models/client_profile.dart';
 import '../../shared/widgets/app_card.dart';
 import '../auth/session_controller.dart';
 import '../client/client_api.dart';
+import 'security_settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -67,6 +68,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text('PAN: ${profile.panNumber ?? '—'}'),
                     Text('Nominee: ${profile.nomineeName ?? '—'}'),
                   ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              AppCard(
+                child: ListTile(
+                  leading: const Icon(Icons.security_rounded),
+                  title: const Text('Security'),
+                  subtitle: const Text('PIN, biometrics, and app lock'),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SecuritySettingsScreen(),
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 16),
