@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:local_auth/local_auth.dart';
 
 import '../../core/auth/biometric_service.dart';
+import '../../core/utils/error_handler.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -24,28 +24,15 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   Future<void> _checkBiometrics() async {
     final biometric = context.read<BiometricService>();
-    final canAuth = await biometric.canAuthenticate();
-    final types = await biometric.getAvailableBiometrics();
+    final authInfo = await biometric.getAuthInfo();
+
+    debugPrint('SecuritySettings: authInfo=$authInfo');
+
     if (mounted) {
       setState(() {
-        _biometricAvailable = canAuth;
-
-        if (types.contains(BiometricType.face)) {
-          _biometricLabel = 'Face ID';
-          _biometricIcon = Icons.face_rounded;
-        } else if (types.contains(BiometricType.fingerprint)) {
-          _biometricLabel = 'Fingerprint';
-          _biometricIcon = Icons.fingerprint_rounded;
-        } else if (types.contains(BiometricType.iris)) {
-          _biometricLabel = 'Iris';
-          _biometricIcon = Icons.remove_red_eye_rounded;
-        } else if (types.contains(BiometricType.strong)) {
-          _biometricLabel = 'PIN/Pattern/Password';
-          _biometricIcon = Icons.pin_rounded;
-        } else {
-          _biometricLabel = 'Device Security';
-          _biometricIcon = Icons.security_rounded;
-        }
+        _biometricAvailable = authInfo['available'] as bool;
+        _biometricLabel = authInfo['label'] as String;
+        _biometricIcon = authInfo['icon'] as IconData;
       });
     }
   }
@@ -150,40 +137,83 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                         : 'Secure your app with $_biometricLabel',
                   ),
                   value: biometric.isAppLockEnabled,
-                  onChanged: (value) async {
-                    if (value) {
-                      final auth = await biometric.authenticate(
-                        reason: 'Verify to enable app lock',
-                      );
-                      if (auth) {
-                        await biometric.setAppLockEnabled(true);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  'App lock enabled with $_biometricLabel'),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                  onChanged: _biometricAvailable
+                      ? (value) async {
+                          if (value) {
+                            // Enabling - require authentication first
+                            final auth = await biometric.authenticate(
+                              reason: 'Verify your identity to enable app lock',
+                              biometricOnly:
+                                  false, // Allow PIN/Pattern/Password
+                            );
+                            if (auth) {
+                              await biometric.setAppLockEnabled(true);
+                              if (mounted) {
+                                setState(() {});
+                                ErrorHandler.showSuccessToast(
+                                  'App lock enabled successfully',
+                                );
+                              }
+                            } else {
+                              if (mounted) {
+                                ErrorHandler.showErrorToast(
+                                  'Authentication failed. App lock not enabled.',
+                                );
+                              }
+                            }
+                          } else {
+                            // Disabling - just turn off
+                            await biometric.setAppLockEnabled(false);
+                            if (mounted) {
+                              setState(() {});
+                              ErrorHandler.showInfoToast(
+                                'App lock disabled',
+                              );
+                            }
+                          }
                         }
-                      }
-                    } else {
-                      await biometric.setAppLockEnabled(false);
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('App lock disabled'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    }
-                    setState(() {});
-                  },
+                      : null, // Disabled if biometric not available
                 ),
               ],
             ),
           ),
+          // Not Available Warning
+          if (!_biometricAvailable) ...[
+            const SizedBox(height: 20),
+            Card(
+              color: theme.colorScheme.errorContainer.withAlpha(51),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.warning_rounded,
+                      color: theme.colorScheme.error,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Biometric Not Available',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your device doesn\'t support biometric authentication or device credentials (PIN/Pattern/Password). '
+                      'Please set up device security in your system settings to use this feature.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withAlpha(179),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           // Information Section
           if (!biometric.isAppLockEnabled && _biometricAvailable) ...[
             const SizedBox(height: 32),
@@ -212,7 +242,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               theme,
               Icons.privacy_tip_outlined,
               'Privacy Guaranteed',
-              'Your biometric data stays on your device and never leaves it',
+              'Your authentication data stays on your device and never leaves it',
             ),
           ],
           if (biometric.isAppLockEnabled) ...[

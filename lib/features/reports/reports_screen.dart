@@ -287,7 +287,8 @@ class _ReportsScreenState extends State<ReportsScreen>
         final transaction = transactions[index];
         final type =
             transaction['transaction_type']?.toString() ?? 'Transaction';
-        final amount = (transaction['amount'] as num?)?.toDouble() ?? 0;
+        final amount =
+            double.tryParse(transaction['amount']?.toString() ?? '0') ?? 0.0;
         final date = transaction['transaction_date']?.toString() ??
             transaction['created_at']?.toString();
 

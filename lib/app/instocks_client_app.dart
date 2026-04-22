@@ -17,13 +17,14 @@ class InstocksClientApp extends StatefulWidget {
 
 class _InstocksClientAppState extends State<InstocksClientApp>
     with WidgetsBindingObserver {
-  bool _isAuthenticated = false;
+  bool _isAppLocked = false;
+  bool _needsAuth = false;
+  bool _hasCheckedInitialAuth = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkAuth();
   }
 
   @override
@@ -32,25 +33,60 @@ class _InstocksClientAppState extends State<InstocksClientApp>
     super.dispose();
   }
 
+  Future<void> _checkInitialAuth() async {
+    if (_hasCheckedInitialAuth) return;
+    _hasCheckedInitialAuth = true;
+
+    final session = context.read<SessionController>();
+    final biometric = context.read<BiometricService>();
+
+    // If user is logged in and app lock is enabled, require auth on startup
+    if (session.isAuthenticated && biometric.isAppLockEnabled) {
+      setState(() {
+        _isAppLocked = true;
+        _needsAuth = true;
+      });
+      // Automatically trigger auth prompt immediately
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (mounted) {
+        await _checkAuth();
+      }
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    final session = context.read<SessionController>();
+    final biometric = context.read<BiometricService>();
+
+    // Lock when user is authenticated AND app lock is enabled
+    if (state == AppLifecycleState.paused &&
+        session.isAuthenticated &&
+        biometric.isAppLockEnabled) {
+      setState(() {
+        _isAppLocked = true;
+        _needsAuth = true;
+      });
+    } else if (state == AppLifecycleState.resumed && _needsAuth) {
+      // App resumed, trigger auth check
       _checkAuth();
     }
   }
 
   Future<void> _checkAuth() async {
-    final biometric = context.read<BiometricService>();
-    if (!biometric.isAppLockEnabled) {
-      setState(() => _isAuthenticated = true);
-      return;
-    }
+    if (!_needsAuth) return;
 
+    final biometric = context.read<BiometricService>();
     final auth = await biometric.authenticate(
-      reason: 'Authenticate to access Instocks',
+      reason: 'Unlock Instocks',
+      biometricOnly: false, // Allow PIN/Pattern/Password fallback
     );
+
     if (mounted) {
-      setState(() => _isAuthenticated = auth);
+      setState(() {
+        _isAppLocked = !auth;
+        if (auth) _needsAuth = false;
+      });
     }
   }
 
@@ -58,11 +94,19 @@ class _InstocksClientAppState extends State<InstocksClientApp>
   Widget build(BuildContext context) {
     return Consumer<SessionController>(
       builder: (context, session, _) {
+        // Check initial auth after bootstrap completes
+        if (!session.isBootstrapping && !_hasCheckedInitialAuth) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _checkInitialAuth();
+          });
+        }
+
         Widget home;
 
         if (session.isBootstrapping) {
           home = const _SplashScreen();
-        } else if (!_isAuthenticated) {
+        } else if (session.isAuthenticated && _isAppLocked) {
+          // Show lock screen only when user is logged in AND app is locked
           home = _LockedScreen(onAuthenticate: _checkAuth);
         } else if (!session.isAuthenticated) {
           home = const LoginScreen();
@@ -96,7 +140,11 @@ class _BiometricSetupWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BiometricSetupScreen();
+    return BiometricSetupScreen(
+      onComplete: (enabled) {
+        onComplete();
+      },
+    );
   }
 }
 

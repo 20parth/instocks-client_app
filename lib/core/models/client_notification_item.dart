@@ -19,9 +19,14 @@ class ClientNotificationItem {
   final String? pushStatus;
   final String? createdAt;
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory ClientNotificationItem.fromJson(Map<String, dynamic> json) {
     return ClientNotificationItem(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
       title: (json['title'] ?? 'Notification') as String,
       message: (json['message'] ?? '') as String,
       notificationType: (json['notification_type'] ?? 'general') as String,

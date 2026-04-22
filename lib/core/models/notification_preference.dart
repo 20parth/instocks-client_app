@@ -27,9 +27,14 @@ class NotificationPreference {
     );
   }
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory NotificationPreference.fromJson(Map<String, dynamic> json) {
     return NotificationPreference(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
       notificationType: (json['notification_type'] ?? 'general') as String,
       allowInApp: json['allow_in_app'] as bool? ?? true,
       allowEmail: json['allow_email'] as bool? ?? true,

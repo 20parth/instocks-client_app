@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,54 +23,126 @@ class BiometricService {
     await _prefs.setBool(_setupPromptedKey, true);
   }
 
+  /// Check if device supports biometric OR device credential (PIN/Pattern/Password)
   Future<bool> canAuthenticate() async {
     try {
-      final canCheck = await _auth.canCheckBiometrics;
+      // Check if device supports biometrics
+      final canCheckBiometrics = await _auth.canCheckBiometrics;
+
+      // Check if device is supported (can use PIN/Pattern/Password)
       final isDeviceSupported = await _auth.isDeviceSupported();
-      return canCheck || isDeviceSupported;
+
+      // Return true if either biometrics OR device credentials are available
+      final result = canCheckBiometrics || isDeviceSupported;
+
+      debugPrint(
+          'BiometricService: canCheckBiometrics=$canCheckBiometrics, isDeviceSupported=$isDeviceSupported, result=$result');
+
+      return result;
     } catch (e) {
-      debugPrint('Biometric check error: $e');
+      debugPrint('BiometricService: canAuthenticate error: $e');
       return false;
     }
   }
 
+  /// Check if device has security set up (biometric OR PIN/Pattern/Password)
   Future<bool> isDeviceSecured() async {
     try {
-      final canAuth = await canAuthenticate();
-      if (!canAuth) return false;
       return await _auth.isDeviceSupported();
     } catch (e) {
-      debugPrint('Device security check error: $e');
+      debugPrint('BiometricService: isDeviceSecured error: $e');
       return false;
     }
   }
 
+  /// Get list of available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
-      return await _auth.getAvailableBiometrics();
+      final types = await _auth.getAvailableBiometrics();
+      debugPrint('BiometricService: Available biometrics: $types');
+      return types;
     } catch (e) {
-      debugPrint('Get biometrics error: $e');
+      debugPrint('BiometricService: getAvailableBiometrics error: $e');
       return [];
     }
   }
 
+  /// Get user-friendly authentication type info
+  Future<Map<String, dynamic>> getAuthInfo() async {
+    try {
+      final canCheckBiometrics = await _auth.canCheckBiometrics;
+      final isDeviceSupported = await _auth.isDeviceSupported();
+      final types = await getAvailableBiometrics();
+
+      String label = 'Device Security';
+      IconData icon = Icons.security_rounded;
+
+      // Check for specific biometric types first
+      if (types.contains(BiometricType.face)) {
+        label = 'Face ID';
+        icon = Icons.face_rounded;
+      } else if (types.contains(BiometricType.fingerprint)) {
+        label = 'Fingerprint';
+        icon = Icons.fingerprint_rounded;
+      } else if (types.contains(BiometricType.iris)) {
+        label = 'Iris';
+        icon = Icons.remove_red_eye_rounded;
+      } else if (isDeviceSupported && !canCheckBiometrics) {
+        // Device supports auth but no biometrics = PIN/Pattern/Password
+        label = 'PIN, Pattern or Password';
+        icon = Icons.pin_rounded;
+      }
+
+      return {
+        'available': canCheckBiometrics || isDeviceSupported,
+        'label': label,
+        'icon': icon,
+        'hasBiometric': canCheckBiometrics,
+        'hasDeviceCredential': isDeviceSupported,
+      };
+    } catch (e) {
+      debugPrint('BiometricService: getAuthInfo error: $e');
+      return {
+        'available': false,
+        'label': 'Not Available',
+        'icon': Icons.error_outline_rounded,
+        'hasBiometric': false,
+        'hasDeviceCredential': false,
+      };
+    }
+  }
+
+  /// Authenticate using biometric OR device credentials (PIN/Pattern/Password)
+  /// biometricOnly=false allows fallback to PIN/Pattern/Password
   Future<bool> authenticate({
     String reason = 'Authenticate to access Instocks',
+    bool biometricOnly = false,
   }) async {
     try {
       final canAuth = await canAuthenticate();
-      if (!canAuth) return false;
+      if (!canAuth) {
+        debugPrint(
+            'BiometricService: Cannot authenticate - device not supported');
+        return false;
+      }
 
-      return await _auth.authenticate(
+      debugPrint(
+          'BiometricService: Starting authentication with reason: $reason');
+
+      final result = await _auth.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(
+        options: AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: false,
+          biometricOnly: biometricOnly, // Allow PIN/Pattern/Password fallback
           useErrorDialogs: true,
+          sensitiveTransaction: false,
         ),
       );
+
+      debugPrint('BiometricService: Authentication result: $result');
+      return result;
     } catch (e) {
-      debugPrint('Biometric auth error: $e');
+      debugPrint('BiometricService: authenticate error: $e');
       return false;
     }
   }

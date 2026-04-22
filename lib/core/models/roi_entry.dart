@@ -24,12 +24,17 @@ class RoiEntry {
     return double.tryParse(value?.toString() ?? '0') ?? 0;
   }
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory RoiEntry.fromJson(Map<String, dynamic> json) {
     return RoiEntry(
-      id: (json['id'] as num?)?.toInt() ?? 0,
-      portfolioId: (json['portfolio_id'] as num?)?.toInt() ?? 0,
-      month: (json['month'] as num?)?.toInt() ?? 0,
-      year: (json['year'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
+      portfolioId: _toInt(json['portfolio_id']),
+      month: _toInt(json['month']),
+      year: _toInt(json['year']),
       roiAmount: _toDouble(json['roi_amount']),
       roiPercentage: _toDouble(json['roi_percentage']),
       paymentStatus: (json['payment_status'] ?? 'Pending') as String,

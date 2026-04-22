@@ -36,9 +36,14 @@ class PortfolioItem {
     return double.tryParse(value?.toString() ?? '0') ?? 0;
   }
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory PortfolioItem.fromJson(Map<String, dynamic> json) {
     return PortfolioItem(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
       portfolioNumber: (json['portfolio_number'] ?? '—') as String,
       portfolioType: (json['portfolio_type'] ?? 'Portfolio') as String,
       status: (json['status'] ?? 'Active') as String,

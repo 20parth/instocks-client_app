@@ -28,10 +28,15 @@ class FundEntryItem {
     return double.tryParse(value?.toString() ?? '0') ?? 0;
   }
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory FundEntryItem.fromJson(Map<String, dynamic> json) {
     return FundEntryItem(
-      id: (json['id'] as num?)?.toInt() ?? 0,
-      portfolioId: (json['portfolio_id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
+      portfolioId: _toInt(json['portfolio_id']),
       fundType: (json['fund_type'] ?? 'Fund') as String,
       status: (json['status'] ?? 'Closed') as String,
       amount: _toDouble(json['amount']),

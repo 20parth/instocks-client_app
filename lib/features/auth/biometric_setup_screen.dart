@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:local_auth/local_auth.dart';
 
 import '../../core/auth/biometric_service.dart';
 
 class BiometricSetupScreen extends StatefulWidget {
-  const BiometricSetupScreen({super.key});
+  final Function(bool enabled)? onComplete;
+
+  const BiometricSetupScreen({super.key, this.onComplete});
 
   @override
   State<BiometricSetupScreen> createState() => _BiometricSetupScreenState();
@@ -50,30 +51,14 @@ class _BiometricSetupScreenState extends State<BiometricSetupScreen>
 
   Future<void> _checkBiometrics() async {
     final biometric = context.read<BiometricService>();
-    final canAuth = await biometric.canAuthenticate();
-    final types = await biometric.getAvailableBiometrics();
+    final authInfo = await biometric.getAuthInfo();
 
     if (mounted) {
       setState(() {
-        _biometricAvailable = canAuth;
+        _biometricAvailable = authInfo['available'] as bool;
+        _biometricLabel = authInfo['label'] as String;
+        _biometricIcon = authInfo['icon'] as IconData;
         _isChecking = false;
-
-        if (types.contains(BiometricType.face)) {
-          _biometricLabel = 'Face ID';
-          _biometricIcon = Icons.face_rounded;
-        } else if (types.contains(BiometricType.fingerprint)) {
-          _biometricLabel = 'Fingerprint';
-          _biometricIcon = Icons.fingerprint_rounded;
-        } else if (types.contains(BiometricType.iris)) {
-          _biometricLabel = 'Iris';
-          _biometricIcon = Icons.remove_red_eye_rounded;
-        } else if (types.contains(BiometricType.strong)) {
-          _biometricLabel = 'PIN/Pattern/Password';
-          _biometricIcon = Icons.pin_rounded;
-        } else {
-          _biometricLabel = 'Device Security';
-          _biometricIcon = Icons.security_rounded;
-        }
       });
 
       _animationController.forward();
@@ -84,19 +69,33 @@ class _BiometricSetupScreenState extends State<BiometricSetupScreen>
     final biometric = context.read<BiometricService>();
 
     final auth = await biometric.authenticate(
-      reason: 'Set up app lock to secure your account',
+      reason: 'Verify your identity to enable app lock',
+      biometricOnly: false, // Allow PIN/Pattern/Password fallback
     );
 
     if (auth && mounted) {
       await biometric.setAppLockEnabled(true);
+      await biometric.markSetupPrompted();
       if (mounted) {
-        Navigator.pop(context, true);
+        if (widget.onComplete != null) {
+          widget.onComplete!(true);
+        } else {
+          Navigator.of(context).pop(true);
+        }
       }
     }
   }
 
-  void _skipSetup() {
-    Navigator.pop(context, false);
+  Future<void> _skipSetup() async {
+    final biometric = context.read<BiometricService>();
+    await biometric.markSetupPrompted();
+    if (mounted) {
+      if (widget.onComplete != null) {
+        widget.onComplete!(false);
+      } else {
+        Navigator.of(context).pop(false);
+      }
+    }
   }
 
   @override
@@ -326,7 +325,7 @@ class _BiometricSetupScreenState extends State<BiometricSetupScreen>
       {
         'icon': Icons.lock_outline_rounded,
         'title': 'Instant Access',
-        'subtitle': 'Unlock the app quickly with $_biometricLabel',
+        'subtitle': 'Unlock the app quickly using $_biometricLabel',
       },
       {
         'icon': Icons.shield_outlined,
@@ -336,7 +335,7 @@ class _BiometricSetupScreenState extends State<BiometricSetupScreen>
       {
         'icon': Icons.privacy_tip_outlined,
         'title': 'Privacy First',
-        'subtitle': 'Your biometric data never leaves your device',
+        'subtitle': 'Your authentication data never leaves your device',
       },
     ];
 

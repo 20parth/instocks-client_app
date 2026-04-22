@@ -33,9 +33,14 @@ class ClientProfile {
   final bool isBlocked;
   final String? dateOfBirth;
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory ClientProfile.fromJson(Map<String, dynamic> json) {
     return ClientProfile(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
       clientCode: (json['client_code'] ?? '—') as String,
       name: (json['name'] ?? 'Client') as String,
       email: (json['email'] ?? '') as String,

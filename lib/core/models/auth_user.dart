@@ -27,19 +27,25 @@ class AuthUser {
 
   bool get isClient => role.toLowerCase() == 'client';
 
+  static int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
   factory AuthUser.fromJson(Map<String, dynamic> json) {
     final client = json['client'] as Map<String, dynamic>?;
 
     return AuthUser(
-      id: (json['id'] as num?)?.toInt() ?? 0,
+      id: _toInt(json['id']),
       fullName: (json['full_name'] ??
           json['name'] ??
           json['username'] ??
           'Client') as String,
       email: (json['email'] ?? '') as String,
       role: (json['role'] ?? 'Client') as String,
-      clientId: (json['client_id'] as num?)?.toInt() ??
-          (client?['id'] as num?)?.toInt(),
+      clientId: json['client_id'] != null
+          ? _toInt(json['client_id'])
+          : (client?['id'] != null ? _toInt(client!['id']) : null),
       clientCode: client?['client_code'] as String?,
       phone: client?['phone'] as String?,
       kycStatus: client?['kyc_status'] as String?,
