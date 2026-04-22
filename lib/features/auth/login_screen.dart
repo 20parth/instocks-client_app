@@ -60,20 +60,11 @@ class _LoginScreenState extends State<LoginScreen>
 
     final session = context.read<SessionController>();
 
-    try {
-      await session.login(
-        login: _loginController.text.trim(),
-        password: _passwordController.text,
-      );
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.toString().replaceFirst('Exception: ', '')),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    // Global error interceptor will show toast on error
+    await session.login(
+      login: _loginController.text.trim(),
+      password: _passwordController.text,
+    );
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../config/app_config.dart';
 import '../storage/session_storage.dart';
+import '../utils/error_handler.dart';
 
 class ApiClient {
   ApiClient({required SessionStorage storage})
@@ -14,6 +15,7 @@ class ApiClient {
             headers: {'Accept': 'application/json'},
           ),
         ) {
+    // Auth token interceptor
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -22,6 +24,18 @@ class ApiClient {
             options.headers['Authorization'] = 'Bearer $token';
           }
           handler.next(options);
+        },
+      ),
+    );
+
+    // Global error interceptor
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          // Show user-friendly error toast
+          ErrorHandler.showErrorToast(error);
+          // Pass the error along for specific handling if needed
+          handler.next(error);
         },
       ),
     );
